@@ -23,6 +23,8 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
+import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,7 +62,8 @@ public class BatchConfiguration {
     @Bean
     public Step step2() {
         return steps.get("step2").<Integer, Integer>chunk(3)
-                .reader(flatFileItemReader(null))
+//                .reader(flatFileItemReader(null))
+                .reader(flatFixedFileItemReader(null))
                 .writer(new InMemWriter())
                 .build();
     }
@@ -107,6 +110,46 @@ public class BatchConfiguration {
                             {
                                 setNames(new String[]{"productID","productName","ProductDesc","price","unit"});
 
+                            }
+                        });
+                        setFieldSetMapper(new BeanWrapperFieldSetMapper(){
+                            {
+                                setTargetType(Product.class);
+                            }
+                        });
+                    }
+                }
+        );
+
+        // step 3 reader to skip the header
+        reader.setLinesToSkip(1);
+        return reader;
+    }
+
+
+    //Red fixed file (txt)
+    @StepScope
+    @Bean
+    public FlatFileItemReader flatFixedFileItemReader(@Value("#{jobParameters['fileInput']}") String inputFile){
+
+        FlatFileItemReader reader = new FlatFileItemReader();
+        // step 1 let reader known where is the file
+        reader.setResource(new FileSystemResource(inputFile));
+
+        //create the line mapper
+        reader.setLineMapper(
+                new DefaultLineMapper<Product>(){
+                    {
+                        setLineTokenizer( new FixedLengthTokenizer(){
+                            {
+                                setNames(new String[]{"productID","productName","ProductDesc","price","unit"});
+                                setColumns(
+                                        new Range(1,16),
+                                        new Range(17,41),
+                                        new Range(42,65),
+                                        new Range(66,73),
+                                        new Range(74,80)
+                                );
                             }
                         });
                         setFieldSetMapper(new BeanWrapperFieldSetMapper(){
