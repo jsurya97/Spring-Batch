@@ -2,6 +2,7 @@ package com.jk.spring_batch.config;
 
 import com.jk.spring_batch.listener.HwJobExecutionListener;
 import com.jk.spring_batch.listener.HwStepExecutionListener;
+import com.jk.spring_batch.model.Product;
 import com.jk.spring_batch.processor.InMemProcessor;
 import com.jk.spring_batch.reader.InMemoryReader;
 import com.jk.spring_batch.writer.InMemWriter;
@@ -11,15 +12,23 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
+import org.springframework.batch.item.file.mapping.DefaultLineMapper;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
 
 @EnableBatchProcessing
 @Configuration
@@ -51,8 +60,7 @@ public class BatchConfiguration {
     @Bean
     public Step step2() {
         return steps.get("step2").<Integer, Integer>chunk(3)
-                .reader(reader())
-                .processor(inMemProcessor)
+                .reader(flatFileItemReader(null))
                 .writer(new InMemWriter())
                 .build();
     }
@@ -70,6 +78,7 @@ public class BatchConfiguration {
     @Bean
     public Job helowworldJob(){
         return jobs.get("hellowwordjob")
+                .incrementer(new RunIdIncrementer())
                 .listener(hwJobExecutionListener)
                 .start(step1())
                 .next(step2())
@@ -82,9 +91,36 @@ public class BatchConfiguration {
         return new InMemoryReader();
     }
 
+    @StepScope
     @Bean
-    public ItemWriter writer(){
-        return new InMemWriter();
+    public FlatFileItemReader flatFileItemReader(@Value("#{jobParameters['fileInput']}") String inputFile){
+
+        FlatFileItemReader reader = new FlatFileItemReader();
+        // step 1 let reader known where is the file
+        reader.setResource(new FileSystemResource(inputFile));
+
+        //create the line mapper
+        reader.setLineMapper(
+                new DefaultLineMapper<Product>(){
+                    {
+                        setLineTokenizer( new DelimitedLineTokenizer(){
+                            {
+                                setNames(new String[]{"productID","productName","ProductDesc","price","unit"});
+
+                            }
+                        });
+                        setFieldSetMapper(new BeanWrapperFieldSetMapper(){
+                            {
+                                setTargetType(Product.class);
+                            }
+                        });
+                    }
+                }
+        );
+
+        // step 3 reader to skip the header
+        reader.setLinesToSkip(1);
+        return reader;
     }
 
 
