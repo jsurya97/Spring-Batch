@@ -1,6 +1,7 @@
 package com.jk.spring_batch.config;
 
 import com.jk.spring_batch.model.Product;
+import com.jk.spring_batch.processor.ProdutProcessor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -153,9 +154,10 @@ public class BatchConfig {
         return steps.get("step1")
                 .<Product,Product>chunk(3)
                 .reader(reader(null))
-//                .writer(flatFileItemWriter(null))
+                .processor(new ProdutProcessor())
+                .writer(flatFileItemWriter(null))
 //                .writer(dbWriter())
-                .writer(jdbcBatchItemWriter2())
+//                .writer(jdbcBatchItemWriter2())
                 .build();
     }
 
