@@ -1,16 +1,37 @@
-package com.jk.spring_batch.model;
+package com.swt.simpleproduceservice.model;
 
+
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 
+@XmlRootElement(name="product")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Product {
+
 
     private Integer productId;
 
+    @XmlElement(name="productName")
     private String prodName;
-
+  
     private BigDecimal price;
     private Integer unit;
     private String productDesc;
+
+    public Product(Integer productId, String prodName, BigDecimal price, Integer unit, String productDesc) {
+        this.productId = productId;
+        this.prodName = prodName;
+        this.price = price;
+        this.unit = unit;
+        this.productDesc = productDesc;
+    }
+
+    public Product() {
+    }
 
     @Override
     public String toString() {
@@ -63,4 +84,3 @@ public class Product {
         this.unit = unit;
     }
 }
-
