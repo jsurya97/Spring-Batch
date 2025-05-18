@@ -5,29 +5,30 @@ import java.math.BigDecimal;
 public class Product {
 
     private Integer productId;
+
     private String prodName;
-  
+
     private BigDecimal price;
     private Integer unit;
-    private String ProductDesc;
+    private String productDesc;
 
     @Override
     public String toString() {
         return "Product{" +
                 "productID=" + productId +
                 ", productName='" + prodName + '\'' +
-                ", ProductDesc='" + ProductDesc + '\'' +
+                ", productDesc='" + productDesc + '\'' +
                 ", price=" + price +
                 ", unit=" + unit +
                 '}';
     }
 
-    public Integer getProductID() {
+    public Integer getProductId() {
         return productId;
     }
 
-    public void setProductID(Integer productID) {
-        this.productId = productID;
+    public void setProductId(Integer productId) {
+        this.productId = productId;
     }
 
     public String getProdName() {
@@ -39,11 +40,11 @@ public class Product {
     }
 
     public String getProductDesc() {
-        return ProductDesc;
+        return productDesc;
     }
 
     public void setProductDesc(String productDesc) {
-        ProductDesc = productDesc;
+        this.productDesc = productDesc;
     }
 
     public BigDecimal getPrice() {
@@ -62,3 +63,4 @@ public class Product {
         this.unit = unit;
     }
 }
+
