@@ -19,6 +19,7 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
@@ -31,6 +32,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+
+import javax.sql.DataSource;
 
 @EnableBatchProcessing
 @Configuration
@@ -50,6 +54,8 @@ public class BatchConfiguration {
 
     @Autowired
     InMemProcessor inMemProcessor;
+    @Autowired
+    DataSource dataSource;
 
     @Bean
     public Step step1() {
@@ -63,7 +69,8 @@ public class BatchConfiguration {
     public Step step2() {
         return steps.get("step2").<Integer, Integer>chunk(3)
 //                .reader(flatFileItemReader(null))
-                .reader(flatFixedFileItemReader(null))
+//                .reader(flatFixedFileItemReader(null))
+                .reader(jdbcCursorItemReader())
                 .writer(new InMemWriter())
                 .build();
     }
@@ -166,5 +173,16 @@ public class BatchConfiguration {
         return reader;
     }
 
+    public JdbcCursorItemReader jdbcCursorItemReader() {
 
+        JdbcCursorItemReader reader = new JdbcCursorItemReader();
+        reader.setDataSource(this.dataSource);
+        reader.setSql("Select product_id, prod_name, prod_desc as product_desc, unit,price from products");
+        reader.setRowMapper(new BeanPropertyRowMapper(){
+            {
+                setMappedClass(Product.class);
+            }
+        });
+        return reader;
+    }
 }

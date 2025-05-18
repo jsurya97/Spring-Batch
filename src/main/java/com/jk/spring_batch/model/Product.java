@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 public class Product {
 
-    private Integer productID;
+    private Integer productId;
     private String prodName;
   
     private BigDecimal price;
@@ -14,7 +14,7 @@ public class Product {
     @Override
     public String toString() {
         return "Product{" +
-                "productID=" + productID +
+                "productID=" + productId +
                 ", productName='" + prodName + '\'' +
                 ", ProductDesc='" + ProductDesc + '\'' +
                 ", price=" + price +
@@ -23,11 +23,11 @@ public class Product {
     }
 
     public Integer getProductID() {
-        return productID;
+        return productId;
     }
 
     public void setProductID(Integer productID) {
-        this.productID = productID;
+        this.productId = productID;
     }
 
     public String getProdName() {
