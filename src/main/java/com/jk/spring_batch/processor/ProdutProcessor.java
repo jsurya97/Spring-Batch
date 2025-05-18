@@ -8,7 +8,7 @@ public class ProdutProcessor implements ItemProcessor<Product, Product> {
     @Override
     public Product process(Product product) throws Exception {
         if(product.getProductId()==2){
-            return null;
+            throw new RuntimeException("Id Not");
         }else{
             product.setProductDesc(product.getProductDesc().toUpperCase());
         }

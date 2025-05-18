@@ -1,5 +1,6 @@
 package com.jk.spring_batch.config;
 
+import com.jk.spring_batch.listener.ProductSkipListener;
 import com.jk.spring_batch.model.Product;
 import com.jk.spring_batch.processor.ProdutProcessor;
 import org.springframework.batch.core.Job;
@@ -9,14 +10,12 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.step.skip.AlwaysSkipItemSkipPolicy;
 import org.springframework.batch.item.database.ItemPreparedStatementSetter;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
-import org.springframework.batch.item.file.FlatFileFooterCallback;
-import org.springframework.batch.item.file.FlatFileHeaderCallback;
-import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.item.file.*;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
@@ -158,6 +157,11 @@ public class BatchConfig {
                 .writer(flatFileItemWriter(null))
 //                .writer(dbWriter())
 //                .writer(jdbcBatchItemWriter2())
+                .faultTolerant()
+//                 .skip(RuntimeException.class)
+//                .skipLimit(10)
+                .skipPolicy(new AlwaysSkipItemSkipPolicy())
+                .listener(new ProductSkipListener())
                 .build();
     }
 
